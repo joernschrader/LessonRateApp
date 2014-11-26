@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout 
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+    	android:layout_height="wrap_content">
+    	<TextView 
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:text="@string/subject" />
+    	<EditText 
+    	    android:id="@+id/subject"
+    	    android:hint="@string/subject_hint"
+    	    android:layout_width="fill_parent"
+    		android:layout_height="wrap_content" />
+    	<TextView 
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:text="@string/teacher" />
+    	<EditText 
+    	    android:id="@+id/teacher"
+    	    android:hint="@string/teacher_hint"
+    	    android:layout_width="fill_parent"
+    		android:layout_height="wrap_content" />
+    	<TextView 
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:text="@string/topic" />
+    	<EditText 
+    	    android:id="@+id/topic"
+    	    android:hint="@string/topic_hint"
+    	    android:layout_width="fill_parent"
+    		android:layout_height="wrap_content" />
+    	<TextView 
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:text="@string/rate" />
+    	<RatingBar
+    	    android:id="@+id/rate"
+    	    android:numStars="6"
+    	    android:stepSize="1.0"
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content" />
+    	<Button 
+    	    android:id="@+id/confirm"
+    	    android:text="@string/confirm"
+    	    android:layout_width="wrap_content"
+    		android:layout_height="wrap_content" />	
+    	</LinearLayout>
+</ScrollView> 
+

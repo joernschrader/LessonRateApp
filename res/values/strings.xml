@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LessonRateApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_insert">Unterricht hinzufügen</string>
+    <string name="menu_delete">Unterricht entfernen</string>
+    
+    <string name="task_saved_message">Bewertung gespeichert</string>
+    <string name="subject">Fach: </string>
+    <string name="subject_hint">Fach eingeben</string>
+    <string name="teacher">Lehrer: </string>
+    <string name="teacher_hint">Lehrer eingeben</string>
+    <string name="topic">Inhalt: </string>
+    <string name="topic_hint">Inhalt der Stunde eingeben</string>
+    <string name="rate">Bewertung: </string>        
+    <string name="confirm">Speichern</string>
+    
+    <string name="no_lessons">Keine Unterrichtseinheiten</string>
+
+</resources>
