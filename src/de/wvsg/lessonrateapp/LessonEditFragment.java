@@ -18,12 +18,20 @@ import android.widget.Toast;
 public class LessonEditFragment extends Fragment {
 	public static final String DEFAULT_EDIT_FRAGMENT_TAG = "editFragmentTag";
 	
-	private Button mConfirmButton;
+	static final String YEAR = "year";
+	static final String MONTH = "month";
+	static final String DAY = "day";
+	static final String HOUR = "hour";
+	static final String MINS = "mins";
+	static final String CALENDAR = "calendar";
+	  
 	private EditText mSubject;
 	private EditText mTeacher;
 	private EditText mTopic;
 	private RatingBar mRate;
+	private Button mConfirmButton;
 	private long mRowId;
+    private Calendar mCalendar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +40,12 @@ public class LessonEditFragment extends Fragment {
 		if (arguments != null) {
 			mRowId = arguments.getLong(LessonProvider.COLUMN_ROWID);
 		}
+		if (savedInstanceState != null
+	            && savedInstanceState.containsKey(CALENDAR)) {
+	        mCalendar = (Calendar) savedInstanceState.getSerializable(CALENDAR);
+	    } else {
+	        mCalendar = Calendar.getInstance();
+	    }
 	}
 	
 	@Override
@@ -46,36 +60,34 @@ public class LessonEditFragment extends Fragment {
 		mTopic = (EditText) rootView.findViewById(R.id.topic);
 		mRate = (RatingBar) rootView.findViewById(R.id.rate);
 
-//		mConfirmButton.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// Some database operations
-//				int mRowId = 0;
-//				Calendar mCalendar = Calendar.getInstance();
-//				ContentValues values = new ContentValues();
-//				values.put(LessonProvider.COLUMN_ROWID, mRowId);
-//				values.put(LessonProvider.COLUMN_SUBJECT, mSubject.getText().toString());
-//				values.put(LessonProvider.COLUMN_TEACHER, mTeacher.getText().toString());
-//				values.put(LessonProvider.COLUMN_TOPIC, mTopic.getText().toString());
-//				values.put(LessonProvider.COLUMN_RATE, (int) mRate.getRating());
-//				values.put(LessonProvider.COLUMN_DATETIME,
-//						mCalendar.getTimeInMillis());
-//
-//				if (mRowId == 0) {
-//					Uri itemUri = getActivity().getContentResolver().insert(
-//							LessonProvider.CONTENT_URI, values);
-//					mRowId = (int) ContentUris.parseId(itemUri);
-//				} else {
-//					// Update
-//				}
-//
-//				Toast.makeText(getActivity(),
-//						getString(R.string.task_saved_message),
-//						Toast.LENGTH_LONG).show();
-//
-//			}
-//		});
+		mConfirmButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// Some database operations
+				ContentValues values = new ContentValues();
+				values.put(LessonProvider.COLUMN_ROWID, mRowId);
+				values.put(LessonProvider.COLUMN_SUBJECT, mSubject.getText().toString());
+				values.put(LessonProvider.COLUMN_TEACHER, mTeacher.getText().toString());
+				values.put(LessonProvider.COLUMN_TOPIC, mTopic.getText().toString());
+				values.put(LessonProvider.COLUMN_RATE, (int) mRate.getRating());
+				values.put(LessonProvider.COLUMN_DATETIME,
+						mCalendar.getTimeInMillis());
+
+				if (mRowId == 0) {
+					Uri itemUri = getActivity().getContentResolver().insert(
+							LessonProvider.CONTENT_URI, values);
+					mRowId = (int) ContentUris.parseId(itemUri);
+				} else {
+					// Update
+				}
+
+				Toast.makeText(getActivity(),
+						getString(R.string.task_saved_message),
+						Toast.LENGTH_LONG).show();
+
+			}
+		});
 
 		return rootView;
 	}

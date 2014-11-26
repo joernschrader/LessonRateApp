@@ -1,10 +1,19 @@
 package de.wvsg.lessonrateapp;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
-public class LessonProvider {
 
-	public static final String COLUMN_ROWID = "_id";
-	/*
+public class LessonProvider extends ContentProvider {
+
 	public class DatabaseHelper extends SQLiteOpenHelper {
 
 		DatabaseHelper(Context context) {
@@ -136,6 +145,4 @@ public class LessonProvider {
 		return 0;
 	}
 	
-	*/
-
 }

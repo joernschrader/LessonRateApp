@@ -1,31 +1,37 @@
 package de.wvsg.lessonrateapp;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
-public class LessonListFragment extends ListFragment {
+public class LessonListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 	
-	private ListAdapter mAdapter;
+	private SimpleCursorAdapter mAdapter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		String[] items = new String[] { "Foo", "Bar", "Fizz", "Bin" };
+		String[] from = new String[] { LessonProvider.COLUMN_SUBJECT };
+		int[] to = new int[] { R.id.text1 };
 		
-		mAdapter = new ArrayAdapter<String>(getActivity(), 
-				R.layout.lesson_row, R.id.text1, items);
+		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, 0);
+				
 		setListAdapter(mAdapter);
+		
+		getLoaderManager().initLoader(0, null, this);
 	}
 	
 	@Override
@@ -82,5 +88,21 @@ public class LessonListFragment extends ListFragment {
 		Intent i = new Intent(getActivity(), LessonEditActivity.class);
 		i.putExtra(LessonProvider.COLUMN_ROWID, id);
 		startActivity(i);		
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+		return new CursorLoader(getActivity(), LessonProvider.CONTENT_URI, null, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		mAdapter.swapCursor(cursor);
+		
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.swapCursor(null);		
 	}
 }
