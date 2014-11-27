@@ -2,9 +2,7 @@ package de.wvsg.lessonrateapp;
 
 import java.util.Calendar;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,10 +30,13 @@ public class LessonEditFragment extends Fragment {
 	private Button mConfirmButton;
 	private long mRowId;
     private Calendar mCalendar;
+    
+    private LessonProvider lp; 
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		lp = new LessonProvider(getActivity());
 		Bundle arguments = getArguments();
 		if (arguments != null) {
 			mRowId = arguments.getLong(LessonProvider.COLUMN_ROWID);
@@ -46,6 +47,7 @@ public class LessonEditFragment extends Fragment {
 	    } else {
 	        mCalendar = Calendar.getInstance();
 	    }
+		
 	}
 	
 	@Override
@@ -60,10 +62,12 @@ public class LessonEditFragment extends Fragment {
 		mTopic = (EditText) rootView.findViewById(R.id.topic);
 		mRate = (RatingBar) rootView.findViewById(R.id.rate);
 
+
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+
 				// Some database operations
 				ContentValues values = new ContentValues();
 				values.put(LessonProvider.COLUMN_ROWID, mRowId);
@@ -75,9 +79,10 @@ public class LessonEditFragment extends Fragment {
 						mCalendar.getTimeInMillis());
 
 				if (mRowId == 0) {
-					Uri itemUri = getActivity().getContentResolver().insert(
-							LessonProvider.CONTENT_URI, values);
-					mRowId = (int) ContentUris.parseId(itemUri);
+//					Uri itemUri = getActivity().getContentResolver().insert(
+//							LessonProvider.CONTENT_URI, values);
+//					mRowId = (int) ContentUris.parseId(itemUri);
+					mRowId = (int) lp.insert(values);
 				} else {
 					// Update
 				}
@@ -85,6 +90,8 @@ public class LessonEditFragment extends Fragment {
 				Toast.makeText(getActivity(),
 						getString(R.string.task_saved_message),
 						Toast.LENGTH_LONG).show();
+				
+				getActivity().finish();
 
 			}
 		});
