@@ -42,6 +42,7 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 		setHasOptionsMenu(true);
 	}
 	
+	
 
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
@@ -64,10 +65,10 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 		case R.id.menu_delete:
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 			lp.delete(info.id);
+			mAdapter.swapCursor(lp.getAllLessons());
 			mAdapter.notifyDataSetChanged();
 			return true;
 		}
-		mAdapter.notifyDataSetChanged();
 		return super.onContextItemSelected(item);
 	}
 	
