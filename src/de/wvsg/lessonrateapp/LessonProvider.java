@@ -9,13 +9,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.support.v4.content.CursorLoader;
 
-public class LessonProvider  {
+
+public class LessonProvider extends CursorLoader {
 
 	// database constants
-	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "data.db";
-	private static final String DATABASE_TABLE = "lessons";
+	public static final int DATABASE_VERSION = 1;
+	public static final String DATABASE_NAME = "data.db";
+	public static final String DATABASE_TABLE = "lessons";
 	// database fields
 	public static final String COLUMN_ROWID = "_id";
 	public static final String COLUMN_DATETIME = "lesson_date_time";
@@ -52,9 +54,15 @@ public class LessonProvider  {
 	private LessonDataBase mDb;
 
 	public LessonProvider(Context context) {
+		super(context);
 		mDb = new LessonDataBase(context);
 	}
 
+	@Override
+	public Cursor loadInBackground() {
+		return getAllLessons();
+	}
+	
 	public Cursor getAllLessons() {
 		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
 		sqlBuilder.setTables(DATABASE_TABLE);

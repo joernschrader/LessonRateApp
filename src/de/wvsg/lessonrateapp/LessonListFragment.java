@@ -1,19 +1,23 @@
 package de.wvsg.lessonrateapp;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListView;
 
-public class LessonListFragment extends ListFragment { // implements LoaderCallbacks<Cursor> {
+public class LessonListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 	
 	private SimpleCursorAdapter mAdapter;
 	private LessonProvider lp;
@@ -27,11 +31,10 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 		String[] from = new String[] { LessonProvider.COLUMN_SUBJECT };
 		int[] to = new int[] { R.id.text1 };
 		
-		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, lp.getAllLessons(), from, to, 0);
-				
+		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 		setListAdapter(mAdapter);
 		
-		// getLoaderManager().initLoader(0, null, this);
+		getLoaderManager().initLoader(0, null, this);
 	}
 	
 	@Override
@@ -42,7 +45,14 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 		setHasOptionsMenu(true);
 	}
 	
-	
+	@Override
+	public void onResume() {
+		Log.d("LessonListFragment","onResume()");
+		super.onResume();
+		mAdapter.swapCursor(lp.getAllLessons());
+		//getLoaderManager().restartLoader(0, null, this);
+
+	}
 
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
@@ -66,7 +76,7 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 			lp.delete(info.id);
 			mAdapter.swapCursor(lp.getAllLessons());
-			mAdapter.notifyDataSetChanged();
+			//mAdapter.notifyDataSetChanged();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -96,14 +106,16 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 	}
 	
 
-/*	@Override
+	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		return new CursorLoader(getActivity(), LessonProvider.CONTENT_URI, null, null, null, null);
+		return lp;
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mAdapter.swapCursor(cursor);
+		mAdapter.notifyDataSetChanged();
+		Log.d("LOADER MANAGER", "ON LOAD FINISHED");
 		
 	}
 
@@ -111,5 +123,5 @@ public class LessonListFragment extends ListFragment { // implements LoaderCallb
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);		
 	}
-*/
+
 }

@@ -79,9 +79,7 @@ public class LessonEditFragment extends Fragment {
 						mCalendar.getTimeInMillis());
 
 				if (mRowId == 0) {
-//					Uri itemUri = getActivity().getContentResolver().insert(
-//							LessonProvider.CONTENT_URI, values);
-//					mRowId = (int) ContentUris.parseId(itemUri);
+					values.remove(LessonProvider.COLUMN_ROWID);
 					mRowId = (int) lp.insert(values);
 				} else {
 					// Update
