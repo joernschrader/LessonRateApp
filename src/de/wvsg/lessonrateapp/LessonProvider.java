@@ -1,8 +1,5 @@
 package de.wvsg.lessonrateapp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -63,6 +60,19 @@ public class LessonProvider extends CursorLoader {
 		return getAllLessons();
 	}
 	
+	
+	public Cursor loadDetail(long id) {
+		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
+		sqlBuilder.setTables(DATABASE_TABLE);
+		Cursor cursor = sqlBuilder.query(mDb.getReadableDatabase(), null, 
+				LessonProvider.COLUMN_ROWID + "=?", new String[] { Long.toString(id) },
+				null, null, null, null);
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+		}
+		return cursor;
+	}
+	
 	public Cursor getAllLessons() {
 		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
 		sqlBuilder.setTables(DATABASE_TABLE);
@@ -73,30 +83,19 @@ public class LessonProvider extends CursorLoader {
 	
 	public long insert(ContentValues values) {
 		SQLiteDatabase wDb = mDb.getWritableDatabase();
-		long newRowId = wDb.insert(DATABASE_TABLE, null, values);
+		long newRowId = wDb.insertOrThrow(DATABASE_TABLE, null, values);
 		return newRowId;
+	}
+	
+	public int update(ContentValues values) {
+		SQLiteDatabase wDb = mDb.getWritableDatabase();
+		int count = wDb.update(DATABASE_TABLE, values, COLUMN_ROWID+ "=?", 
+				new String[] { values.getAsString(COLUMN_ROWID) });
+		return count;
 	}
 	
 	public void delete(long id) {
 		mDb.getWritableDatabase().delete(DATABASE_TABLE, COLUMN_ROWID + " = " + id, null);
 	}
-
-	public List<String> getAllLessonSubjects() {
-		List<String> lessonNames = extractStringsFromCursor(getAllLessons(),COLUMN_SUBJECT);
-		return lessonNames;
-	}
-
-	public List<String> extractStringsFromCursor(Cursor cursor,
-			String columnName) {
-		ArrayList<String> cursorStrings = new ArrayList<String>();
-		int columnIndex = cursor.getColumnIndex(columnName);
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			cursorStrings.add(cursor.getString(columnIndex));
-			cursor.moveToNext();
-		}
-		return cursorStrings;
-	}
-
 
 }

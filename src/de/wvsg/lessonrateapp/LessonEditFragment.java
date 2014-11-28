@@ -3,6 +3,7 @@ package de.wvsg.lessonrateapp;
 import java.util.Calendar;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -62,7 +63,14 @@ public class LessonEditFragment extends Fragment {
 		mTopic = (EditText) rootView.findViewById(R.id.topic);
 		mRate = (RatingBar) rootView.findViewById(R.id.rate);
 
-
+		if (mRowId != 0) {
+			Cursor cursor = lp.loadDetail(mRowId);
+			mSubject.setText(cursor.getString(cursor.getColumnIndex(LessonProvider.COLUMN_SUBJECT)));
+			mTeacher.setText(cursor.getString(cursor.getColumnIndex(LessonProvider.COLUMN_TEACHER)));
+			mTopic.setText(cursor.getString(cursor.getColumnIndex(LessonProvider.COLUMN_TOPIC)));
+			mRate.setRating(cursor.getFloat(cursor.getColumnIndex(LessonProvider.COLUMN_RATE)));
+		}
+		
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -82,7 +90,7 @@ public class LessonEditFragment extends Fragment {
 					values.remove(LessonProvider.COLUMN_ROWID);
 					mRowId = (int) lp.insert(values);
 				} else {
-					// Update
+					int count = lp.update(values);
 				}
 
 				Toast.makeText(getActivity(),

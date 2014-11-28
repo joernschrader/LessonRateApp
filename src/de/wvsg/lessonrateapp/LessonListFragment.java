@@ -28,7 +28,7 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 		
 		lp = new LessonProvider(getActivity());
 		
-		String[] from = new String[] { LessonProvider.COLUMN_SUBJECT };
+		String[] from = new String[] { LessonProvider.COLUMN_TOPIC };
 		int[] to = new int[] { R.id.text1 };
 		
 		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
