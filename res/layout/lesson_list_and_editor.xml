@@ -7,15 +7,16 @@
     
     <fragment 
         android:id="@+id/list_fragment"
-        android:name="de.wvsg.lessonrateapp.LessonListFragment"
+		android:name="de.wvsg.lessonrateapp.LessonListFragment"
         android:layout_width="0dp"
     	android:layout_height="fill_parent" 
     	android:layout_weight="1" />
 
-    <fragment 
-        android:id="@+id/edit_container"
+      <FrameLayout
+        android:id="@+id/edit_container_tab"        
         android:layout_width="0dp"
     	android:layout_height="fill_parent" 
     	android:layout_weight="1"/>
+
 
 </LinearLayout>
