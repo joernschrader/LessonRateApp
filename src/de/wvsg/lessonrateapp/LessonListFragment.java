@@ -1,34 +1,37 @@
 package de.wvsg.lessonrateapp;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class LessonListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 	
+	public static final String DEFAULT_LIST_FRAGMENT_TAG = "listFragmentTag";
 	private SimpleCursorAdapter mAdapter;
+	private LessonProvider lp;
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
-		String[] from = new String[] { LessonProvider.COLUMN_SUBJECT };
-		int[] to = new int[] { R.id.text1 };
+		lp = new LessonProvider(getActivity());
 		
-		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, 0);
-				
+		String[] from = new String[] { LessonProvider.COLUMN_TOPIC, LessonProvider.COLUMN_TEACHER };
+		int[] to = new int[] { R.id.text1, R.id.text2 };
+		
+		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 		setListAdapter(mAdapter);
 		
 		getLoaderManager().initLoader(0, null, this);
@@ -42,12 +45,19 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 		setHasOptionsMenu(true);
 	}
 	
+	@Override
+	public void onResume() {
+		Log.d("LessonListFragment","onResume()");
+		super.onResume();
+		mAdapter.swapCursor(lp.getAllLessons());
+		//getLoaderManager().restartLoader(0, null, this);
+
+	}
+
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent i = new Intent(getActivity(), LessonEditActivity.class);
-		i.putExtra(LessonProvider.COLUMN_ROWID, id);
-		startActivity(i);
+		((OnEditLesson) getActivity()).editLesson(id);
 	}
 	
 	@Override
@@ -61,7 +71,10 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	public boolean onContextItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.menu_delete:
-			// TODO Unterricht entfernen
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+			lp.delete(info.id);
+			mAdapter.swapCursor(lp.getAllLessons());
+			//mAdapter.notifyDataSetChanged();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -77,27 +90,23 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_insert:
-			editLesson(0);
+			((OnEditLesson) getActivity()).editLesson(0);
 			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void editLesson(long id) {
-		Intent i = new Intent(getActivity(), LessonEditActivity.class);
-		i.putExtra(LessonProvider.COLUMN_ROWID, id);
-		startActivity(i);		
-	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		return new CursorLoader(getActivity(), LessonProvider.CONTENT_URI, null, null, null, null);
+		return lp;
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mAdapter.swapCursor(cursor);
+		mAdapter.notifyDataSetChanged();
 		
 	}
 
@@ -105,4 +114,5 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);		
 	}
+
 }

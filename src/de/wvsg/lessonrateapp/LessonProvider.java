@@ -1,57 +1,20 @@
 package de.wvsg.lessonrateapp;
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.support.v4.content.CursorLoader;
 
 
-public class LessonProvider extends ContentProvider {
-
-	public class DatabaseHelper extends SQLiteOpenHelper {
-
-		DatabaseHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(DATABASE_CREATE);
-		}
-
-		@Override
-		public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	// ContentProvider URI and source
-	public static String AUTHORITY = "de.wvsg.rateapp.LessonProvider";
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
-			+ "/lessons");
-
-	// MIME-types for special requests
-	public static final String LESSONS_MIME_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
-			+ "/vnd.de.wvsg.lessonrateapp.lesson";
-	public static final String LESSON_MIME_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
-			+ "/vnd.de.wvsg.lessonrateapp.lesson";
-
-	// UriMatcher
-	private static final int LIST_LESSON = 0;
-	private static final int ITEM_LESSON = 1;
-	private static final UriMatcher sURIMatcher = buildUriMatcher();
+public class LessonProvider extends CursorLoader {
 
 	// database constants
-	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "data.db";
-	private static final String DATABASE_TABLE = "lessons";
-
+	public static final int DATABASE_VERSION = 1;
+	public static final String DATABASE_NAME = "data.db";
+	public static final String DATABASE_TABLE = "lessons";
 	// database fields
 	public static final String COLUMN_ROWID = "_id";
 	public static final String COLUMN_DATETIME = "lesson_date_time";
@@ -67,82 +30,72 @@ public class LessonProvider extends ContentProvider {
 			+ COLUMN_TOPIC + " text not null, " + COLUMN_RATE
 			+ " integer not null, " + COLUMN_DATETIME + " integer not null);";
 
-	private SQLiteDatabase mDb;
+	public class LessonDataBase extends SQLiteOpenHelper {
 
-	private static UriMatcher buildUriMatcher() {
-		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-		matcher.addURI(AUTHORITY, "lesson", LIST_LESSON);
-		matcher.addURI(AUTHORITY, "lesson/#", ITEM_LESSON);
-		return matcher;
-	}
+		// constructor
+		LessonDataBase(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
 
-	@Override
-	public boolean onCreate() {
-		mDb = new DatabaseHelper(getContext()).getWritableDatabase();
-		return false;
-	}
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL(DATABASE_CREATE);
+		}
 
-	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public String getType(Uri uri) {
-		switch (sURIMatcher.match(uri)) {
-		case LIST_LESSON:
-			return LESSONS_MIME_TYPE;
-		case ITEM_LESSON:
-			return LESSON_MIME_TYPE;
-		default:
-			throw new IllegalArgumentException("Unknown Uri: " + uri);
+		@Override
+		public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+			throw new UnsupportedOperationException();
 		}
 	}
 
-	@Override
-	public Uri insert(Uri uri, ContentValues values) {
-		values.remove(LessonProvider.COLUMN_ROWID);
-		long id = mDb.insertOrThrow(LessonProvider.DATABASE_TABLE, null, values);
-		getContext().getContentResolver().notifyChange(uri, null);
-		return ContentUris.withAppendedId(uri, id);
+	private LessonDataBase mDb;
+
+	public LessonProvider(Context context) {
+		super(context);
+		mDb = new LessonDataBase(context);
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] ignored1, String ignored2,
-			String[] ignored3, String ignored4) {
-		String[] projection = new String[] {
-			LessonProvider.COLUMN_ROWID, LessonProvider.COLUMN_SUBJECT,
-			LessonProvider.COLUMN_TEACHER, LessonProvider.COLUMN_TOPIC,
-			LessonProvider.COLUMN_RATE, LessonProvider.COLUMN_DATETIME
-		};
-		
-		// UriMatcher: determine query-type -> format sql
-		Cursor c;
-		switch (sURIMatcher.match(uri)) {
-		case LIST_LESSON:
-			c = mDb.query(LessonProvider.DATABASE_TABLE, projection, null, null, null, null, null);
-			break;
-		case ITEM_LESSON:
-			c = mDb.query(LessonProvider.DATABASE_TABLE, projection, LessonProvider.COLUMN_ROWID + "=?", 
-					new String[] { Long.toString(ContentUris.parseId(uri)) }, 
-					null, null, null, null);
-			if (c != null && c.getCount() > 0 ) {
-				c.moveToFirst();
-			}
-			break;
-		default:
-			throw new IllegalArgumentException("Unbekannte URI: " + uri);
-		}
-		c.setNotificationUri(getContext().getContentResolver(), uri);
-		return c;
-	}
-
-	@Override
-	public int update(Uri uri, ContentValues values, String selection,
-			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+	public Cursor loadInBackground() {
+		return getAllLessons();
 	}
 	
+	
+	public Cursor loadDetail(long id) {
+		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
+		sqlBuilder.setTables(DATABASE_TABLE);
+		Cursor cursor = sqlBuilder.query(mDb.getReadableDatabase(), null, 
+				LessonProvider.COLUMN_ROWID + "=?", new String[] { Long.toString(id) },
+				null, null, null, null);
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+		}
+		return cursor;
+	}
+	
+	public Cursor getAllLessons() {
+		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
+		sqlBuilder.setTables(DATABASE_TABLE);
+		Cursor cursor = sqlBuilder.query(mDb.getReadableDatabase(), null, null,
+				null, null, null, null);
+		return cursor;
+	}
+	
+	public long insert(ContentValues values) {
+		SQLiteDatabase wDb = mDb.getWritableDatabase();
+		long newRowId = wDb.insertOrThrow(DATABASE_TABLE, null, values);
+		return newRowId;
+	}
+	
+	public int update(ContentValues values) {
+		SQLiteDatabase wDb = mDb.getWritableDatabase();
+		int count = wDb.update(DATABASE_TABLE, values, COLUMN_ROWID+ "=?", 
+				new String[] { values.getAsString(COLUMN_ROWID) });
+		return count;
+	}
+	
+	public void delete(long id) {
+		mDb.getWritableDatabase().delete(DATABASE_TABLE, COLUMN_ROWID + " = " + id, null);
+	}
+
 }

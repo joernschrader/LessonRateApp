@@ -26,6 +26,10 @@
             android:name=".LessonEditActivity"
             android:label="@string/app_name" >
         </activity>
+        <activity
+            android:name=".LessonListAndEditorActivity"
+            android:label="@string/app_name" >
+        </activity>
     </application>
 
 </manifest>
