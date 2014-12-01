@@ -97,7 +97,7 @@ public class LessonEditFragment extends Fragment {
 						getString(R.string.task_saved_message),
 						Toast.LENGTH_LONG).show();
 				
-				getActivity().finish();
+				((OnFinishEditor) getActivity()).finishEditor();
 
 			}
 		});

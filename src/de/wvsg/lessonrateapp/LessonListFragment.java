@@ -1,6 +1,5 @@
 package de.wvsg.lessonrateapp;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -19,6 +18,7 @@ import android.widget.ListView;
 
 public class LessonListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 	
+	public static final String DEFAULT_LIST_FRAGMENT_TAG = "listFragmentTag";
 	private SimpleCursorAdapter mAdapter;
 	private LessonProvider lp;
 	
@@ -29,7 +29,6 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 		lp = new LessonProvider(getActivity());
 		
 		String[] from = new String[] { LessonProvider.COLUMN_TOPIC, LessonProvider.COLUMN_TEACHER };
-
 		int[] to = new int[] { R.id.text1, R.id.text2 };
 		
 		mAdapter = new SimpleCursorAdapter(getActivity(),  R.layout.lesson_row, null, from, to, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -58,9 +57,7 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		Intent i = new Intent(getActivity(), LessonEditActivity.class);
-		i.putExtra(LessonProvider.COLUMN_ROWID, id);
-		startActivity(i);
+		((OnEditLesson) getActivity()).editLesson(id);
 	}
 	
 	@Override
@@ -93,19 +90,13 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_insert:
-			editLesson(0);
+			((OnEditLesson) getActivity()).editLesson(0);
 			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void editLesson(long id) {
-		Intent i = new Intent(getActivity(), LessonEditActivity.class);
-		i.putExtra(LessonProvider.COLUMN_ROWID, id);
-		startActivity(i);		
-	}
-	
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
@@ -116,7 +107,6 @@ public class LessonListFragment extends ListFragment implements LoaderCallbacks<
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mAdapter.swapCursor(cursor);
 		mAdapter.notifyDataSetChanged();
-		Log.d("LOADER MANAGER", "ON LOAD FINISHED");
 		
 	}
 

@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
-public class LessonEditActivity extends FragmentActivity {
+public class LessonEditActivity extends FragmentActivity implements OnFinishEditor {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -26,5 +26,10 @@ public class LessonEditActivity extends FragmentActivity {
 					LessonEditFragment.DEFAULT_EDIT_FRAGMENT_TAG);
 			transaction.commit();
 		}
+	}
+
+	@Override
+	public void finishEditor() {
+		finish();
 	}
 }
